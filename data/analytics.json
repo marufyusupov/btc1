@@ -1,0 +1,37 @@
+{
+  "totalDistributions": 20,
+  "totalRewardsDistributed": "1885302499498",
+  "totalClaimed": "1615680679143",
+  "overallClaimRate": 85.69,
+  "activeDistributions": 0,
+  "completedDistributions": 20,
+  "averageClaimRate": 85.42,
+  "topDistribution": {
+    "id": "15",
+    "rewards": "145598239799",
+    "claimed": "140342143342",
+    "claimRate": 96.4
+  },
+  "recentActivity": [
+    {
+      "date": "2025-09-05",
+      "distributions": 1,
+      "rewards": "75895588671"
+    },
+    {
+      "date": "2025-09-12",
+      "distributions": 1,
+      "rewards": "65033072452"
+    },
+    {
+      "date": "2025-09-19",
+      "distributions": 1,
+      "rewards": "121353512711"
+    },
+    {
+      "date": "2025-09-26",
+      "distributions": 1,
+      "rewards": "138589469715"
+    }
+  ]
+}

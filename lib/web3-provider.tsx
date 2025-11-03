@@ -1,0 +1,49 @@
+"use client"
+
+import React, { ReactNode, createContext, useContext } from "react"
+import { useAccount, useDisconnect } from "wagmi"
+
+interface Web3ContextType {
+  isConnected: boolean
+  address: `0x${string}` | undefined
+  chainId: number | undefined
+  connectWallet: () => void
+  disconnectWallet: () => void
+}
+
+const Web3Context = createContext<Web3ContextType | undefined>(undefined)
+
+export function Web3Provider({ children }: { children: ReactNode }) {
+  // Use Wagmi's useAccount hook to get connection state
+  const { address, isConnected, chainId } = useAccount()
+  const { disconnect } = useDisconnect()
+
+  const connectWallet = () => {
+    // This is now handled by the WalletSelectionModal
+    console.log("Use the Connect Wallet button to connect")
+  }
+
+  const disconnectWallet = () => {
+    disconnect()
+  }
+
+  return (
+    <Web3Context.Provider value={{
+      isConnected,
+      address: address as `0x${string}` | undefined,
+      chainId,
+      connectWallet,
+      disconnectWallet
+    }}>
+      {children}
+    </Web3Context.Provider>
+  )
+}
+
+export function useWeb3() {
+  const context = useContext(Web3Context)
+  if (context === undefined) {
+    throw new Error("useWeb3 must be used within a Web3Provider")
+  }
+  return context
+}

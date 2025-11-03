@@ -1,0 +1,169 @@
+"use client";
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Alert, AlertDescription } from './ui/alert';
+import { useAccount } from 'wagmi';
+import {
+  Settings,
+  BarChart3,
+  AlertCircle,
+  Gift
+} from 'lucide-react';
+import { formatPercentage } from '@/lib/protocol-math';
+import MerkleDistributionManagement from './merkle-distribution-management';
+
+interface DistributionAdminProps {
+  collateralRatio: number;
+  totalSupply: number;
+}
+
+export default function DistributionAdmin({ collateralRatio, totalSupply }: DistributionAdminProps) {
+  const { address, isConnected } = useAccount();
+  
+  // Admin check
+  const isAdmin = () => {
+    const adminAddress = process.env.NEXT_PUBLIC_ADMIN_WALLET || "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"; // From deployment
+    return address && address.toLowerCase() === adminAddress.toLowerCase();
+  };
+
+  if (!isConnected) {
+    return (
+      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Distribution Administration
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please connect your wallet to access admin functions.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!isAdmin()) {
+    return (
+      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Distribution Administration
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Access denied. This section is only available to administrators.
+              <br />
+              <span className="text-xs text-gray-400 mt-2 block">
+                Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
+              </span>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Admin Header */}
+      <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+            <Settings className="w-5 h-5 text-orange-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Distribution Administration</h2>
+            <p className="text-gray-400 text-sm">
+              Manage merkle tree distributions and claim operations
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Merkle Distribution Management */}
+      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-4 border border-gray-700 shadow-xl">
+        <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+          <Gift className="w-5 h-5 text-purple-400" />
+          Merkle Distribution Control
+        </h3>
+        <p className="text-gray-400 text-sm mb-4">
+          Generate merkle trees, set roots, and manage claim distributions
+        </p>
+        <MerkleDistributionManagement />
+      </div>
+
+      {/* Protocol Status Overview */}
+      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Protocol Status Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-blue-400">
+                {formatPercentage(collateralRatio, 1)}
+              </div>
+              <div className="text-sm text-gray-400">Collateral Ratio</div>
+              <Badge variant={collateralRatio >= 1.12 ? "default" : "secondary"} className="mt-2">
+                {collateralRatio >= 1.12 ? "Distribution Ready" : "Below Threshold"}
+              </Badge>
+            </div>
+
+            <div className="text-center p-4 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-green-400">
+                {totalSupply.toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-400">Total Supply</div>
+              <div className="text-xs text-gray-500 mt-2">BTC1 Tokens</div>
+            </div>
+
+            <div className="text-center p-4 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-purple-400">
+                {collateralRatio >= 2.02 ? '10.0¢' :
+                 collateralRatio >= 1.92 ? '9.0¢' :
+                 collateralRatio >= 1.82 ? '8.0¢' :
+                 collateralRatio >= 1.72 ? '7.0¢' :
+                 collateralRatio >= 1.62 ? '6.0¢' :
+                 collateralRatio >= 1.52 ? '5.0¢' :
+                 collateralRatio >= 1.42 ? '4.0¢' :
+                 collateralRatio >= 1.32 ? '3.0¢' :
+                 collateralRatio >= 1.22 ? '2.0¢' :
+                 collateralRatio >= 1.12 ? '1.0¢' : '0.0¢'}
+              </div>
+              <div className="text-sm text-gray-400">Current Reward Rate</div>
+              <div className="text-xs text-gray-500 mt-2">Per Token Weekly</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Admin Instructions */}
+      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700 shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-white text-sm">Admin Instructions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-gray-400">
+          <div>• <strong>Weekly Distribution:</strong> Execute every Friday 14:00 UTC when ratio ≥ 112%</div>
+          <div>• <strong>Merkle Tree:</strong> Generate after each distribution execution</div>
+          <div>• <strong>Set Root:</strong> Upload merkle root to enable user claims</div>
+          <div>• <strong>Monitor Claims:</strong> Track claim progress and distribution success</div>
+          <div>• <strong>Emergency Controls:</strong> Pause/unpause system if needed</div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
